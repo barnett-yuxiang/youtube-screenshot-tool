@@ -1,2 +1,1 @@
-# youtube-screenshot-tool
-A Chrome extension for taking screenshots of YouTube videos
+This repository is empty. Any task executed on it should be considered a new capability and needs to be created.
