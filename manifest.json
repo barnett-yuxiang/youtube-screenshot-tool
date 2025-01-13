@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Screenshot Tool",
+  "version": "1.0",
+  "description": "A Chrome extension to take screenshots of YouTube videos and save them with the current timestamp.",
+  "permissions": [
+    "activeTab",
+    "downloads"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
