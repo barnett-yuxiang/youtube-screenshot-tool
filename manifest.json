@@ -4,6 +4,8 @@
   "version": "1.0",
   "description": "A Chrome extension to take screenshots of YouTube videos and save them with the current timestamp.",
   "permissions": [
+    "contextMenus",
+    "tabs",
     "activeTab",
     "downloads"
   ],

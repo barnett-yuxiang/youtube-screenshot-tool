@@ -1,24 +1,49 @@
+// Initialize context menu when extension is installed or updated
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: "screenshot",
-    title: "Take Screenshot",
-    contexts: ["all"]
+  // Remove existing menu items to avoid duplicates
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: "screenshot",
+      title: "Take Screenshot",
+      contexts: ["all"]
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('Error creating context menu:', chrome.runtime.lastError);
+      }
+    });
   });
 });
 
+// Handle context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (!tab || !tab.id) {
+    console.error('Invalid tab');
+    return;
+  }
+
   if (info.menuItemId === "screenshot") {
-    chrome.tabs.sendMessage(tab.id, { action: "takeScreenshot" });
+    chrome.tabs.sendMessage(tab.id, { action: "takeScreenshot" }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error sending message:', chrome.runtime.lastError);
+      }
+    });
   }
 });
 
+// Handle messages from content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "downloadScreenshot") {
-    const { dataUrl, timestamp } = request;
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `screenshot_${timestamp}.png`;
-    link.click();
-    sendResponse({ success: true });
+    try {
+      const { dataUrl, timestamp } = request;
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `screenshot_${timestamp}.png`;
+      link.click();
+      sendResponse({ success: true });
+    } catch (error) {
+      console.error('Error handling screenshot download:', error);
+      sendResponse({ success: false, error: error.message });
+    }
   }
+  return true; // Keep the message channel open for async response
 });
