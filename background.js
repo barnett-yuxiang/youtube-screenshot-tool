@@ -35,11 +35,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "downloadScreenshot") {
     try {
       const { dataUrl, timestamp } = request;
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = `screenshot_${timestamp}.png`;
-      link.click();
-      sendResponse({ success: true });
+      chrome.downloads.download({
+        url: dataUrl,
+        filename: `screenshot_${timestamp}.png`,
+        saveAs: false
+      }, (downloadId) => {
+        if (chrome.runtime.lastError) {
+          console.error('Download failed:', chrome.runtime.lastError);
+          sendResponse({ success: false, error: chrome.runtime.lastError.message });
+        } else {
+          sendResponse({ success: true, downloadId });
+        }
+      });
     } catch (error) {
       console.error('Error handling screenshot download:', error);
       sendResponse({ success: false, error: error.message });
